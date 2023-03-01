@@ -1,5 +1,6 @@
 from typing import Tuple, List
 
+import wandb
 import torch
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
@@ -7,6 +8,8 @@ import torchvision.transforms as transforms
 from transformers import ViTImageProcessor
 
 from model import ClassificationModel
+
+run = wandb.init("vit-cifar10")
 
 batch_size = 30
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -60,9 +63,11 @@ for epoch in range(1000):
         y_hat = torch.argmax(output, dim=-1)
         correct = torch.sum(y_hat == labels)
         print(f'epoch Accuracy: {correct / len(labels)}')
+        wandb.log({"training Accuracy": correct / len(labels)})
 
         # Print loss
         print(f'epoch Loss: {loss.item()}')
+        wandb.log({"training Loss": loss.item()})
 
         # # Save model
         # torch.save(model.state_dict(), 'model.pth')
@@ -79,3 +84,4 @@ for epoch in range(1000):
 
         # Print accuracy
         print(f'Epoch : {epoch} Accuracy: {correct / total}')
+        wandb.log({"validation Accuracy": correct / total})
