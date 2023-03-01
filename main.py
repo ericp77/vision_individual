@@ -30,3 +30,6 @@ testloader = DataLoader(testset, batch_size=batch_size, shuffle=True, collate_fn
 
 # Setmodel
 model = ClassificationModel(num_classes=10)
+
+# Set optimizer
+optim = torch.optim.Adam(model.parameters(), lr=1e-4)
