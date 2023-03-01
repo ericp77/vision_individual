@@ -2,6 +2,7 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
 import torchvision.transforms as transforms
+from transformers import ViTImageProcessor
 
 batch_size = 4
 
@@ -13,7 +14,16 @@ trainset = CIFAR10(root='./data', train=True,
 testset = CIFAR10(root='./data', download=True,
                   train=False, transform=transform)
 
-# Make DataLoader
-trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
-testloader = DataLoader(testset, batch_size=batch_size, shuffle=True)
+processor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224-in21k')
+def collate_fn(batch: List[Tuple[torch.Tensor, int]]):
+    # Get batch
+    inputs = [item[0] for item in batch]
+    inputs = processor(inputs, return_tensors="pt")
+    labels = torch.Tensor([item[1] for item in batch]).long()
 
+    return inputs, labels
+
+
+# Make DataLoader
+trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+testloader = DataLoader(testset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
