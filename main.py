@@ -33,3 +33,6 @@ model = ClassificationModel(num_classes=10)
 
 # Set optimizer
 optim = torch.optim.Adam(model.parameters(), lr=1e-4)
+
+# Set Loss function
+criterion = torch.nn.CrossEntropyLoss()
