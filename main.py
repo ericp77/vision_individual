@@ -1,3 +1,5 @@
+from typing import Tuple, List
+
 import torch
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
@@ -6,6 +8,8 @@ from transformers import ViTImageProcessor
 
 from model import ClassificationModel
 
+batch_size = 30
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 transform = transforms.Compose([transforms.ToTensor()])
 
 # Load Dataset
@@ -30,9 +34,48 @@ testloader = DataLoader(testset, batch_size=batch_size, shuffle=True, collate_fn
 
 # Setmodel
 model = ClassificationModel(num_classes=10)
+model.to(device)
 
 # Set optimizer
 optim = torch.optim.Adam(model.parameters(), lr=1e-4)
 
 # Set Loss function
 criterion = torch.nn.CrossEntropyLoss()
+
+# Train
+for epoch in range(1000):
+    for inputs, labels in trainloader:
+        inputs = inputs.to(device)
+        labels = labels.to(device)
+        # Forward
+        output = model(inputs)  # [batch_size, num_classes] in CIFAR-10
+        loss = criterion(output, labels)  # Calculate loss
+
+        # Backward
+        optim.zero_grad()  # Initialize gradient to zero
+        loss.backward()  # Calculate gradient
+        optim.step()  # Update parameters
+
+        # print accuracy
+        y_hat = torch.argmax(output, dim=-1)
+        correct = torch.sum(y_hat == labels)
+        print(f'epoch Accuracy: {correct / len(labels)}')
+
+        # Print loss
+        print(f'epoch Loss: {loss.item()}')
+
+        # # Save model
+        # torch.save(model.state_dict(), 'model.pth')
+
+    # Validate
+    with torch.no_grad():
+        correct = 0
+        total = 0
+        for inputs, labels in testloader:
+            output = model(inputs)
+            y_hat = torch.argmax(output, dim=-1)
+            total += len(labels)
+            correct += torch.sum(y_hat == labels)
+
+        # Print accuracy
+        print(f'Epoch : {epoch} Accuracy: {correct / total}')
