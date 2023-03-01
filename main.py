@@ -4,7 +4,7 @@ from torchvision.datasets import CIFAR10
 import torchvision.transforms as transforms
 from transformers import ViTImageProcessor
 
-batch_size = 4
+from model import ClassificationModel
 
 transform = transforms.Compose([transforms.ToTensor()])
 
@@ -27,3 +27,6 @@ def collate_fn(batch: List[Tuple[torch.Tensor, int]]):
 # Make DataLoader
 trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
 testloader = DataLoader(testset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+
+# Setmodel
+model = ClassificationModel(num_classes=10)
