@@ -1,18 +1,28 @@
 from typing import Tuple, List
-
 import wandb
 import torch
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
 import torchvision.transforms as transforms
 from transformers import ViTImageProcessor
-
 from model import ClassificationModel
+
+"""
+Referenced:
+https://huggingface.co/datasets/cifar10
+https://pytorch.org/vision/stable/transforms.html
+https://huggingface.co/docs/transformers/model_doc/vit
+https://simpletransformers.ai/docs/classification-models/
+https://wandb.ai/home
+https://pytorch.org/docs/stable/data.html
+https://github.com/features/copilot
+https://github.com/seloufian/Deep-Learning-Computer-Vision/blob/master/eecs498-007/A4/pytorch_autograd_and_nn.ipynb
+"""
 
 run = wandb.init("vit-cifar10")
 
-batch_size = 30
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+batch_size = 4
+device = torch.device("mps" if torch.cuda.is_available() else "cpu")
 transform = transforms.Compose([transforms.ToTensor()])
 
 # Load Dataset
@@ -40,13 +50,14 @@ model = ClassificationModel(num_classes=10)
 model.to(device)
 
 # Set optimizer
+# learning rate lr =
 optim = torch.optim.Adam(model.parameters(), lr=1e-4)
 
 # Set Loss function
 criterion = torch.nn.CrossEntropyLoss()
 
 # Train
-for epoch in range(1000):
+for epoch in range(10):
     for inputs, labels in trainloader:
         inputs = inputs.to(device)
         labels = labels.to(device)
